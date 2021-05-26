@@ -1,0 +1,5 @@
+# BESI-C Relay Crontab
+#   https://github.com/pennbauman/besic-relay
+#   Penn Bauman <pcb8gb@virginia.edu>
+@reboot bash /var/besic/heartbeat.sh
+* * * * * bash /var/besic/heartbeat.sh
