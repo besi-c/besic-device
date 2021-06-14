@@ -10,16 +10,15 @@ dir="/var/besic"
 config="$dir/config.toml"
 
 if [ ! -f $config ]; then
-	read mac < /sys/class/net/wlan0/address
-	mac="$(echo ${mac:9} | sed 's/://g')"
-	echo "id = $mac" > $config
+	echo "Missing config"
+	exit 1
 fi
 
-id=$(cat $config | grep "id =" | sed 's/.*= //')
+id=$(cat $config | grep "mac =" | sed 's/.*= //')
 
 i=0
 while (( $i < 9 )); do
-	curl "$url/api/relay/$id/heartbeat"
+	curl "$url/api/device/$id/heartbeat"
 	if (( $? == 0 )); then
 		exit 0
 	fi
