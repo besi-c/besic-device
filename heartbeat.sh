@@ -6,26 +6,36 @@
 url="http://dev.remote.besic.org"
 log="/var/log/besic/heartbeat.log"
 
+mkdir -p $(dirname $log)
+
 dir="/var/besic"
 config="$dir/config.toml"
 
-if [ ! -f $config ]; then
-	echo "Missing config"
+id=$(tq .mac $config)
+if (($? != 0)); then
+	echo "Config error"
 	exit 1
 fi
 
-id=$(cat $config | grep "mac =" | sed 's/.*= //')
-
+fail=0
 i=0
 while (( $i < 9 )); do
 	curl "$url/api/device/$id/heartbeat"
-	if (( $? == 0 )); then
-		exit 0
+	if (( $? != 0 )); then
+		fail=$(($fail + 1))
 	fi
+	sleep 5
 	i=$(($i + 1))
 done
 
-echo "[$(date)] heartbeat failed" >> $log
-tail -n 100 $log > ${log}.temp
-mv ${log}.temp $log
+if (($fail > 1)); then
+	echo "[$(date)] $fail heartbeats failed" >> $log
+elif (($fail > 0)); then
+	echo "[$(date)] 1 heartbeat failed" >> $log
+else
+	if [[ -f $log ]]; then
+		tail -n 100 $log > ${log}.temp
+		mv ${log}.temp $log
+	fi
+fi
 

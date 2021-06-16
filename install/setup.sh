@@ -7,8 +7,8 @@ dir="/var/besic/"
 
 read mac < /sys/class/net/wlan0/address
 mac="$(echo ${mac:9} | sed 's/://g')"
-echo "besic-relay-$mac" > /etc/hostname
-echo "mac = $mac" > $dir/config.toml
+hostnamectl set-hostname "besic-relay-$mac"
+echo "mac = \"$mac\"" > $dir/config.toml
 
 mkdir -p /var/log/besic/
 

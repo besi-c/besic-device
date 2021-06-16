@@ -83,6 +83,7 @@ mount_temp 2
 dir="$wdir/mnt2/var/besic"
 sudo mkdir $dir
 sudo cp $hdir/install/init.sh $wdir/mnt2/etc/rc.local
+sudo cp $hdir/tq.arm $wdir/mnt2/bin/tq
 echo "bash /var/besic/relay-git/install/setup.sh" | sudo tee $dir/init.sh
 sudo git clone $hdir $dir/relay-git
 
