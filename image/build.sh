@@ -63,28 +63,19 @@ echo "country=US" > $wdir/mnt1/wpa_supplicant.conf
 echo "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev" >> $wdir/mnt1/wpa_supplicant.conf
 echo "update_config=1" >> $wdir/mnt1/wpa_supplicant.conf
 
-read -p "Number of networks: " num
-#num=0
-i=0
-while (( $i < $num )); do
-	read -p "SSID: " name
-	read -p "Password: " pass
+read -p "SSID: " name
+read -p "Password: " pass
 
-	echo "network={" >> $wdir/mnt1/wpa_supplicant.conf
-	echo -e "  ssid=\"$name\"" >> $wdir/mnt1/wpa_supplicant.conf
-	echo -e "  psk=\"$pass\"" >> $wdir/mnt1/wpa_supplicant.conf
-	echo -e "  key_mgmt=WPA-PSK" >> $wdir/mnt1/wpa_supplicant.conf
-	echo "}" >> $wdir/mnt1/wpa_supplicant.conf
-	i=$(($i + 1))
-done
+wpa_passphrase $name $pass >> $wdir/mnt1/wpa_supplicant.conf
+sudo sed -i '/#/d' $wdir/mnt1/wpa_supplicant.conf
 
 mount_temp 2
 # Setup Init
 dir="$wdir/mnt2/var/besic"
 sudo mkdir $dir
 sudo cp $hdir/install/init.sh $wdir/mnt2/etc/rc.local
-sudo cp $hdir/tq.arm $wdir/mnt2/bin/tq
-echo "bash /var/besic/relay-git/install/setup.sh" | sudo tee $dir/init.sh
+sudo cp $hdir/tq/tq.arm $wdir/mnt2/bin/tq
+echo "bash /var/besic/relay-git/install/setup.sh" | sudo tee $dir/init.sh > /dev/null
 sudo git clone $hdir $dir/relay-git
 
 mount_temp 0
