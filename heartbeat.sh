@@ -27,10 +27,13 @@ fi
 
 fail=0
 i=0
-while (( $i < 9 )); do
-	curl "$url/api/device/$id/heartbeat" -d "password=$password"
+while (( $i < 10 )); do
+	res=$(curl "$url/api/device/$id/heartbeat" -d "password=$password")
 	if (( $? != 0 )); then
 		fail=$(($fail + 1))
+		if [[ $res == "Unknown device" ]]; then
+			curl "$url/api/device/new" -d "mac=$id&password=$password&type=relay"
+		fi
 	fi
 	sleep 5
 	i=$(($i + 1))
@@ -41,7 +44,7 @@ if (($fail > 1)); then
 elif (($fail > 0)); then
 	echo "[$(date --rfc-3339=seconds)] 1 heartbeat failed" >> $log
 else
-	if [[ -f $log ]]; then
+	if [[ -f $log ]] && (( $(cat $log | wc -l) > 100 )); then
 		tail -n 100 $log > ${log}.temp
 		mv ${log}.temp $log
 	fi

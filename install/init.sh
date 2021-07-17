@@ -2,6 +2,8 @@
 # BESI-C Relay Init Runner
 #   https://github.com/pennbauman/besic-relay
 #   Penn Bauman <pcb8gb@virginia.edu>
+# location in image: /etc/rc.local
+
 
 init_sh="/var/besic/init.sh"
 

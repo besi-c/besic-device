@@ -4,3 +4,4 @@
 @reboot bash /var/besic/beacon.sh
 @reboot bash /var/besic/heartbeat.sh
 * * * * * bash /var/besic/heartbeat.sh
+0 2 * * * bash /var/besic/update.sh
