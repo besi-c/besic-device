@@ -4,7 +4,7 @@
 #   https://github.com/pennbauman/besic-relay
 # install: /var/besic/relay-git/install/setup.sh
 
-final_img="besic_relay_raspios.img"
+final_img="raspios_besic_relay.img"
 dir="$(pwd)/$(dirname $BASH_SOURCE)"
 
 if (( $(lsblk -ln | grep disk | grep ^mmc | wc -l) == 1 )); then

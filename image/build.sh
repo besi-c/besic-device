@@ -3,11 +3,12 @@
 #   Penn Bauman <pcb8gb@virginia.edu>
 #   https://github.com/pennbauman/besic-relay
 
-zip_file="2021-03-04-raspios-buster-armhf-lite.zip"
-zip_url="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-03-25/$zip_file"
-basic_img="2021-03-04-raspios-buster-armhf-lite.img"
+
+zip_file="2021-05-07-raspios-buster-armhf-lite.zip"
+zip_url="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/$zip_file"
+basic_img="2021-05-07-raspios-buster-armhf-lite.img"
 temp_img="raspios_temp.img"
-final_img="../besic_relay_raspios.img"
+final_img="../raspios_besic_relay.img"
 
 # Setup Directory
 hdir="$(pwd)/$(dirname $BASH_SOURCE)/.."
