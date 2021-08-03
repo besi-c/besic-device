@@ -1,6 +1,7 @@
 #!/bin/bash
 # BESI-C Relay Enable Bluetooth Beacon
 #   https://github.com/pennbauman/besic-relay
+#   Yudel Martinez <yam3nv@virginia.edu>
 #   Penn Bauman <pcb8gb@virginia.edu>
 
 dir="/var/besic"

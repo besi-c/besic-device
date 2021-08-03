@@ -1,8 +1,7 @@
 #!/bin/bash
 # Write BESI-C Relay RasPi Image to SD Card
-#   Penn Bauman <pcb8gb@virginia.edu>
 #   https://github.com/pennbauman/besic-relay
-# install: /var/besic/relay-git/install/setup.sh
+#   Penn Bauman <pcb8gb@virginia.edu>
 
 final_img="raspios_besic_relay.img"
 dir="$(pwd)/$(dirname $BASH_SOURCE)"

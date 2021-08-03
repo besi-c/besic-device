@@ -1,7 +1,7 @@
 #!/bin/bash
 # Build BESI-C Relay RasPi Image
-#   Penn Bauman <pcb8gb@virginia.edu>
 #   https://github.com/pennbauman/besic-relay
+#   Penn Bauman <pcb8gb@virginia.edu>
 
 
 zip_file="2021-05-07-raspios-buster-armhf-lite.zip"

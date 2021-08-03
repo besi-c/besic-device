@@ -10,11 +10,12 @@ git pull --ff-only
 
 cp $dir/relay-git/heartbeat.sh $dir
 cp $dir/relay-git/beacon.sh $dir
-cp $dir/relay-git/update.sh $dir
 cp $dir/relay-git/urls.toml $dir
 crontab $dir/relay-git/crontab
 
 apt update
 apt -y upgrade
+
+echo "cp $dir/relay-git/install/update.sh $dir; rm $dir/init.sh" > $dir/init.sh
 
 reboot

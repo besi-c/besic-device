@@ -29,7 +29,7 @@ fail=0
 i=0
 while (( $i < 10 )); do
 	res=$(curl "$url/api/device/$id/heartbeat" -d "password=$password")
-	if (( $? != 0 )); then
+	if [[ $res != "Success" ]]; then
 		fail=$(($fail + 1))
 		if [[ $res == "Unknown device" ]]; then
 			curl "$url/api/device/new" -d "mac=$id&password=$password&type=relay"

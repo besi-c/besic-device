@@ -9,7 +9,7 @@ mkdir -p $(dirname $log)
 
 read mac < /sys/class/net/wlan0/address
 mac="$(echo ${mac:9} | sed 's/://g')"
-password=$(openssl rand -base64 32)
+password=$(openssl rand -hex 32)
 
 hostname="besic-relay-$mac"
 echo "$hostname" > /etc/hostname
@@ -18,9 +18,9 @@ echo "127.0.0.1 $hostname" > /etc/hosts
 echo "mac = \"$mac\"" > $dir/config.toml
 echo "password = \"$password\"" >> $dir/config.toml
 
+cp $dir/relay-git/install/update.sh $dir
 cp $dir/relay-git/heartbeat.sh $dir
 cp $dir/relay-git/beacon.sh $dir
-cp $dir/relay-git/update.sh $dir
 cp $dir/relay-git/urls.toml $dir
 crontab $dir/relay-git/crontab
 
@@ -31,7 +31,7 @@ if (($? != 0)); then
 fi
 while true; do
 	res=$(curl "$url/api/device/new" -d "mac=$mac&type=relay&password=$password")
-	if (( $? == 0 )); then
+	if [[ $res == "Success" ]]; then
 		break
 	fi
 	echo "[$(date --rfc-3339=seconds)]: Remote init failed ($res)" >> $log
