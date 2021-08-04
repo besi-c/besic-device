@@ -40,9 +40,9 @@ while (( $i < 10 )); do
 done
 
 if (($fail > 1)); then
-	echo "[$(date --rfc-3339=seconds)] $fail heartbeats failed" >> $log
+	echo "[$(date --rfc-3339=seconds)] $fail heartbeats failed ($res)" >> $log
 elif (($fail > 0)); then
-	echo "[$(date --rfc-3339=seconds)] 1 heartbeat failed" >> $log
+	echo "[$(date --rfc-3339=seconds)] 1 heartbeat failed ($res)" >> $log
 else
 	if [[ -f $log ]] && (( $(cat $log | wc -l) > 100 )); then
 		tail -n 100 $log > ${log}.temp

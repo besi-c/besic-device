@@ -10,6 +10,10 @@ basic_img="2021-05-07-raspios-buster-armhf-lite.img"
 temp_img="raspios_temp.img"
 final_img="../raspios_besic_relay.img"
 
+if [ -e ./secrets.conf ]; then
+	source ./secrets.conf
+fi
+
 # Setup Directory
 hdir="$(pwd)/$(dirname $BASH_SOURCE)/.."
 wdir="$(pwd)/$(dirname $BASH_SOURCE)/tmp"
@@ -64,10 +68,14 @@ echo "country=US" > $wdir/mnt1/wpa_supplicant.conf
 echo "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev" >> $wdir/mnt1/wpa_supplicant.conf
 echo "update_config=1" >> $wdir/mnt1/wpa_supplicant.conf
 
-read -p "SSID: " name
-read -p "Password: " pass
+if [ -z ${WIFI_SSID+x} ]; then
+	read -p "SSID: " WIFI_SSID
+fi
+if [ -z ${WIFI_PSWD+x} ]; then
+	read -p "Password: " WIFI_PSWD
+fi
 
-wpa_passphrase $name $pass >> $wdir/mnt1/wpa_supplicant.conf
+wpa_passphrase $WIFI_SSID $WIFI_PSWD >> $wdir/mnt1/wpa_supplicant.conf
 sudo sed -i '/#/d' $wdir/mnt1/wpa_supplicant.conf
 
 mount_temp 2
@@ -76,6 +84,9 @@ dir="$wdir/mnt2/var/besic"
 sudo mkdir $dir
 sudo cp $hdir/install/init.sh $wdir/mnt2/etc/rc.local
 sudo cp $hdir/tq/tq.arm $wdir/mnt2/bin/tq
+if [ ! -z ${PI_PSWD+x} ]; then
+	echo "$PI_PSWD" | sudo tee $dir/passwd > /dev/null
+fi
 echo "bash /var/besic/relay-git/install/setup.sh" | sudo tee $dir/init.sh > /dev/null
 sudo git clone $hdir $dir/relay-git
 

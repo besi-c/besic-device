@@ -3,9 +3,16 @@
 #   https://github.com/pennbauman/besic-relay
 #   Penn Bauman <pcb8gb@virginia.edu>
 
-dir="/var/besic/"
+dir="/var/besic"
 log="/var/log/besic/init.log"
 mkdir -p $(dirname $log)
+
+if [ -f $dir/passwd ]; then
+	cat $dir/passwd | tee -a $dir/passwd
+	passwd pi < $dir/passwd
+	rm $dir/passwd
+	echo "[$(date --rfc-3339=seconds)]: Password updated" >> $log
+fi
 
 read mac < /sys/class/net/wlan0/address
 mac="$(echo ${mac:9} | sed 's/://g')"
