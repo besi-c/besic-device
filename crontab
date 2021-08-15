@@ -5,3 +5,6 @@
 @reboot bash /var/besic/heartbeat.sh
 * * * * * bash /var/besic/heartbeat.sh
 0 2 * * * bash /var/besic/update.sh
+
+# Trim log files
+0 * * * * for f in /var/log/besic/*.log; do sed -i '2000,$d' $f; done

@@ -6,21 +6,19 @@
 dir="/var/besic"
 log="/var/log/besic/heartbeat.log"
 
-
-url=$(tq .remote $dir/urls.toml)
-if (($? != 0)); then
-	echo "[$(date --rfc-3339=seconds)]: Url not found (remote)" >> $log
+source $dir/config.conf
+if [ -z ${MAC+x} ]; then
+	echo "[$(date --rfc-3339=seconds)]: MAC not found" >> $log
+	exit 1
+fi
+if [ -z ${PASSWORD+x} ]; then
+	echo "[$(date --rfc-3339=seconds)]: PASSWORD not found" >> $log
 	exit 1
 fi
 
-id=$(tq .mac $dir/config.toml)
-if (($? != 0)); then
-	echo "[$(date --rfc-3339=seconds)]: Config not found (mac)" >> $log
-	exit 1
-fi
-password=$(tq .password $dir/config.toml)
-if (($? != 0)); then
-	echo "[$(date --rfc-3339=seconds)]: Config not found (password)" >> $log
+source $dir/urls.conf
+if [ -z ${REMOTE_URL+x} ]; then
+	echo "[$(date --rfc-3339=seconds)]: REMOTE_URL not found" >> $log
 	exit 1
 fi
 
@@ -28,11 +26,11 @@ fi
 fail=0
 i=0
 while (( $i < 10 )); do
-	res=$(curl "$url/api/device/$id/heartbeat" -d "password=$password")
+	res=$(curl "$REMOTE_URL/api/device/$MAC/heartbeat" -d "password=$PASSWORD")
 	if [[ $res != "Success" ]]; then
 		fail=$(($fail + 1))
 		if [[ $res == "Unknown device" ]]; then
-			curl "$url/api/device/new" -d "mac=$id&password=$password&type=relay"
+			curl "$REMOTE_URL/api/device/new" -d "mac=$MAC&password=$PASSWORD&type=relay"
 		fi
 	fi
 	sleep 5
@@ -43,10 +41,5 @@ if (($fail > 1)); then
 	echo "[$(date --rfc-3339=seconds)] $fail heartbeats failed ($res)" >> $log
 elif (($fail > 0)); then
 	echo "[$(date --rfc-3339=seconds)] 1 heartbeat failed ($res)" >> $log
-else
-	if [[ -f $log ]] && (( $(cat $log | wc -l) > 100 )); then
-		tail -n 100 $log > ${log}.temp
-		mv ${log}.temp $log
-	fi
 fi
 

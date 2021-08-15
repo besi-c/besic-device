@@ -10,7 +10,7 @@ git pull --ff-only
 
 cp $dir/relay-git/heartbeat.sh $dir
 cp $dir/relay-git/beacon.sh $dir
-cp $dir/relay-git/urls.toml $dir
+cp $dir/relay-git/urls.conf $dir
 crontab $dir/relay-git/crontab
 
 apt update

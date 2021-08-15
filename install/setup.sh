@@ -4,6 +4,7 @@
 #   Penn Bauman <pcb8gb@virginia.edu>
 
 dir="/var/besic"
+git="$dir/relay-git"
 log="/var/log/besic/init.log"
 mkdir -p $(dirname $log)
 
@@ -22,22 +23,23 @@ hostname="besic-relay-$mac"
 echo "$hostname" > /etc/hostname
 echo "127.0.0.1 $hostname" > /etc/hosts
 
-echo "mac = \"$mac\"" > $dir/config.toml
-echo "password = \"$password\"" >> $dir/config.toml
+echo "MAC=\"$mac\"" > $dir/config.conf
+echo "PASSWORD=\"$password\"" >> $dir/config.conf
 
-cp $dir/relay-git/install/update.sh $dir
-cp $dir/relay-git/heartbeat.sh $dir
-cp $dir/relay-git/beacon.sh $dir
-cp $dir/relay-git/urls.toml $dir
-crontab $dir/relay-git/crontab
+cp $git/install/update.sh $dir
+cp $git/heartbeat.sh $dir
+cp $git/beacon.sh $dir
+cp $git/urls.conf $dir
+crontab $git/crontab
 
-url=$(tq .remote $dir/urls.toml)
-if (($? != 0)); then
-	echo "[$(date --rfc-3339=seconds)]: Url not found (remote)" >> $log
+source $dir/urls.conf
+if [ -z ${REMOTE_URL+x} ]; then
+	echo "[$(date --rfc-3339=seconds)]: REMOTE_URL not found" >> $log
 	exit 1
 fi
+
 while true; do
-	res=$(curl "$url/api/device/new" -d "mac=$mac&type=relay&password=$password")
+	res=$(curl "$REMOTE_URL/api/device/new" -d "mac=$mac&type=relay&password=$password")
 	if [[ $res == "Success" ]]; then
 		break
 	fi

@@ -83,7 +83,6 @@ mount_temp 2
 dir="$wdir/mnt2/var/besic"
 sudo mkdir $dir
 sudo cp $hdir/install/init.sh $wdir/mnt2/etc/rc.local
-sudo cp $hdir/tq/tq.arm $wdir/mnt2/bin/tq
 if [ ! -z ${PI_PSWD+x} ]; then
 	echo "$PI_PSWD" | sudo tee $dir/passwd > /dev/null
 fi
