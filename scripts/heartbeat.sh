@@ -3,22 +3,22 @@
 #   https://github.com/pennbauman/besic-relay
 #   Penn Bauman <pcb8gb@virginia.edu>
 
-dir="/var/besic"
-log="/var/log/besic/heartbeat.log"
+DIR="/var/besic"
+LOG="/var/log/besic/heartbeat.log"
 
-source $dir/config.conf
+source $DIR/config.conf
 if [ -z ${MAC+x} ]; then
-	echo "[$(date --rfc-3339=seconds)]: MAC not found" >> $log
+	echo "[$(date --rfc-3339=seconds)]: MAC not found" >> $LOG
 	exit 1
 fi
 if [ -z ${PASSWORD+x} ]; then
-	echo "[$(date --rfc-3339=seconds)]: PASSWORD not found" >> $log
+	echo "[$(date --rfc-3339=seconds)]: PASSWORD not found" >> $LOG
 	exit 1
 fi
 
-source $dir/urls.conf
+source $DIR/urls.conf
 if [ -z ${REMOTE_URL+x} ]; then
-	echo "[$(date --rfc-3339=seconds)]: REMOTE_URL not found" >> $log
+	echo "[$(date --rfc-3339=seconds)]: REMOTE_URL not found" >> $LOG
 	exit 1
 fi
 
@@ -38,8 +38,7 @@ while (( $i < 10 )); do
 done
 
 if (($fail > 1)); then
-	echo "[$(date --rfc-3339=seconds)] $fail heartbeats failed ($res)" >> $log
+	echo "[$(date --rfc-3339=seconds)] $fail heartbeats failed ($res)" >> $LOG
 elif (($fail > 0)); then
-	echo "[$(date --rfc-3339=seconds)] 1 heartbeat failed ($res)" >> $log
+	echo "[$(date --rfc-3339=seconds)] 1 heartbeat failed ($res)" >> $LOG
 fi
-

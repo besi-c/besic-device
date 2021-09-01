@@ -3,12 +3,11 @@
 #   https://github.com/pennbauman/besic-relay
 #   Penn Bauman <pcb8gb@virginia.edu>
 
-
-zip_file="2021-05-07-raspios-buster-armhf-lite.zip"
-zip_url="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/$zip_file"
-basic_img="2021-05-07-raspios-buster-armhf-lite.img"
-temp_img="raspios_temp.img"
-final_img="../raspios_besic_relay.img"
+ZIP_FILE="2021-05-07-raspios-buster-armhf-lite.zip"
+ZIP_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/$ZIP_FILE"
+BASE_IMG="2021-05-07-raspios-buster-armhf-lite.img"
+TEMP_IMG="raspios_temp.img"
+FINAL_IMG="../raspios_besic_relay.img"
 
 if [ -e ./secrets.conf ]; then
 	source ./secrets.conf
@@ -21,13 +20,13 @@ mkdir -p $wdir
 cd $wdir
 
 # Get Basic Image
-if [ ! -f $zip_file ]; then
-	wget $zip_url -O $zip_file
+if [ ! -f $ZIP_FILE ]; then
+	wget $ZIP_URL -O $ZIP_FILE
 fi
-if [ ! -f $basic_img ]; then
-	unzip $zip_file
+if [ ! -f $BASE_IMG ]; then
+	unzip $ZIP_FILE
 fi
-cp $basic_img $temp_img
+cp $BASE_IMG $TEMP_IMG
 
 mount_temp () {
 	# Unmount All
@@ -45,18 +44,18 @@ mount_temp () {
 	mkdir -p $wdir/mnt$1
 
 	# Find Partition Offsets
-	data=$(fdisk -l $temp_img | grep $temp_img$1)
+	data=$(fdisk -l $TEMP_IMG | grep $TEMP_IMG$1)
 	if [[ $data == "" ]]; then
 		echo "Partition '$1' not found"
 		exit 1
 	fi
-	offset=$(echo $data | sed "s/$temp_img$1 *//" | sed "s/ .*//")
+	offset=$(echo $data | sed "s/$TEMP_IMG$1 *//" | sed "s/ .*//")
 
 	# Mount Partition
 	if [[ $1 == 1 ]]; then
-		sudo mount -o loop,offset=$((512*$offset)),umask=0000 $temp_img $wdir/mnt$1
+		sudo mount -o loop,offset=$((512*$offset)),umask=0000 $TEMP_IMG $wdir/mnt$1
 	elif [[ $1 == 2 ]]; then
-		sudo mount -o loop,offset=$((512*$offset)) $temp_img $wdir/mnt$1
+		sudo mount -o loop,offset=$((512*$offset)) $TEMP_IMG $wdir/mnt$1
 	fi
 }
 
@@ -90,4 +89,4 @@ echo "bash /var/besic/relay-git/install/setup.sh" | sudo tee $dir/init.sh > /dev
 sudo git clone $hdir $dir/relay-git
 
 mount_temp 0
-mv $temp_img $final_img
+mv $TEMP_IMG $FINAL_IMG

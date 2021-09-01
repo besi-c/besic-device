@@ -3,19 +3,20 @@
 #   https://github.com/pennbauman/besic-relay
 #   Penn Bauman <pcb8gb@virginia.edu>
 
-dir="/var/besic/"
+DIR="/var/besic"
+GIT_DIR="$DIR/relay-git"
 
-cd $dir/relay-git
+cd $GIT_DIR
 git pull --ff-only
 
-cp $dir/relay-git/heartbeat.sh $dir
-cp $dir/relay-git/beacon.sh $dir
-cp $dir/relay-git/urls.conf $dir
-crontab $dir/relay-git/crontab
+cp $GIT_DIR/scripts/heartbeat.sh $DIR
+cp $GIT_DIR/scripts/beacon.sh $DIR
+cp $GIT_DIR/urls.conf $DIR
+crontab $GIT_DIR/crontab
 
 apt update
 apt -y upgrade
 
-echo "cp $dir/relay-git/install/update.sh $dir; rm $dir/init.sh" > $dir/init.sh
+echo "cp $GIT_DIR/install/update.sh $DIR; rm $DIR/init.sh" > $DIR/init.sh
 
 reboot

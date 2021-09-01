@@ -5,11 +5,11 @@
 # location in image: /etc/rc.local
 
 
-init_sh="/var/besic/init.sh"
+INIT_SH="/var/besic/init.sh"
 
-if [ -f $init_sh ]; then
-	chmod +x $init_sh
-	bash $init_sh
+if [ -f $INIT_SH ]; then
+	chmod +x $INIT_SH
+	bash $INIT_SH
 fi
 
 exit 0

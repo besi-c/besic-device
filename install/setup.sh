@@ -3,16 +3,16 @@
 #   https://github.com/pennbauman/besic-relay
 #   Penn Bauman <pcb8gb@virginia.edu>
 
-dir="/var/besic"
-git="$dir/relay-git"
-log="/var/log/besic/init.log"
-mkdir -p $(dirname $log)
+DIR="/var/besic"
+GIT_DIR="$DIR/relay-git"
+LOG="/var/log/besic/init.log"
+mkdir -p $(dirname $LOG)
 
-if [ -f $dir/passwd ]; then
-	cat $dir/passwd | tee -a $dir/passwd
-	passwd pi < $dir/passwd
-	rm $dir/passwd
-	echo "[$(date --rfc-3339=seconds)]: Password updated" >> $log
+if [ -f $DIR/passwd ]; then
+	cat $DIR/passwd | tee -a $DIR/passwd
+	passwd pi < $DIR/passwd
+	rm $DIR/passwd
+	echo "[$(date --rfc-3339=seconds)]: Password updated" >> $LOG
 fi
 
 read mac < /sys/class/net/wlan0/address
@@ -23,18 +23,18 @@ hostname="besic-relay-$mac"
 echo "$hostname" > /etc/hostname
 echo "127.0.0.1 $hostname" > /etc/hosts
 
-echo "MAC=\"$mac\"" > $dir/config.conf
-echo "PASSWORD=\"$password\"" >> $dir/config.conf
+echo "MAC=\"$mac\"" > $DIR/config.conf
+echo "PASSWORD=\"$password\"" >> $DIR/config.conf
 
-cp $git/install/update.sh $dir
-cp $git/heartbeat.sh $dir
-cp $git/beacon.sh $dir
-cp $git/urls.conf $dir
-crontab $git/crontab
+cp $GIT_DIR/install/update.sh $DIR
+cp $GIT_DIR/scripts/heartbeat.sh $DIR
+cp $GIT_DIR/scripts/beacon.sh $DIR
+cp $GIT_DIR/urls.conf $DIR
+crontab $GIT_DIR/crontab
 
-source $dir/urls.conf
+source $DIR/urls.conf
 if [ -z ${REMOTE_URL+x} ]; then
-	echo "[$(date --rfc-3339=seconds)]: REMOTE_URL not found" >> $log
+	echo "[$(date --rfc-3339=seconds)]: REMOTE_URL not found" >> $LOG
 	exit 1
 fi
 
@@ -43,12 +43,12 @@ while true; do
 	if [[ $res == "Success" ]]; then
 		break
 	fi
-	echo "[$(date --rfc-3339=seconds)]: Remote init failed ($res)" >> $log
+	echo "[$(date --rfc-3339=seconds)]: Remote init failed ($res)" >> $LOG
 	sleep 5
 done
 
-echo "[$(date --rfc-3339=seconds)]: Setup complete" >> $log
+echo "[$(date --rfc-3339=seconds)]: Setup complete" >> $LOG
 
-echo "apt update; apt -y upgrade; rm $dir/init.sh" > $dir/init.sh
+echo "apt update; apt -y upgrade; rm $DIR/init.sh" > $DIR/init.sh
 
 reboot

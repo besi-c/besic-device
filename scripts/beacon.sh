@@ -4,13 +4,13 @@
 #   Yudel Martinez <yam3nv@virginia.edu>
 #   Penn Bauman <pcb8gb@virginia.edu>
 
-dir="/var/besic"
-log="/var/log/besic/beacon.log"
+DIR="/var/besic"
+LOG="/var/log/besic/beacon.log"
 
 # Get MAC from config
-source $dir/config.conf
+source $DIR/config.conf
 if [ -z ${MAC+x} ]; then
-	echo "[$(date --rfc-3339=seconds)]: MAC not found" >> $log
+	echo "[$(date --rfc-3339=seconds)]: MAC not found" >> $LOG
 	exit 1
 fi
 id=${MAC:4:6}
