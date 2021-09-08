@@ -6,17 +6,38 @@
 DIR="/var/besic"
 GIT_DIR="$DIR/relay-git"
 
-cd $GIT_DIR
-git pull --ff-only
+source $DIR/config.conf
+if [ -z ${MAC+x} ]; then
+	echo "[$(date --rfc-3339=seconds)]: MAC not found" >> $log
+	exit 1
+fi
+if [ -z ${PASSWORD+x} ]; then
+	echo "[$(date --rfc-3339=seconds)]: PASSWORD not found" >> $log
+	exit 1
+fi
 
-cp $GIT_DIR/scripts/heartbeat.sh $DIR
-cp $GIT_DIR/scripts/beacon.sh $DIR
-cp $GIT_DIR/urls.conf $DIR
-crontab $GIT_DIR/crontab
+source $DIR/urls.conf
+if [ -z ${REMOTE_URL+x} ]; then
+	echo "[$(date --rfc-3339=seconds)]: REMOTE_URL not found" >> $log
+	exit 1
+fi
 
-apt update
-apt -y upgrade
+# Update deployment info
+curl "$REMOTE_URL/api/device/$MAC/deployment" -d "password=$PASSWORD" > $DIR/deploy.conf
 
-echo "cp $GIT_DIR/install/update.sh $DIR; rm $DIR/init.sh" > $DIR/init.sh
 
-reboot
+# Daily more complex updates
+if [[ $1 == "daily" ]]; then
+	cd $GIT_DIR
+	git pull --ff-only
+
+	cp $GIT_DIR/scripts/heartbeat.sh $DIR
+	cp $GIT_DIR/scripts/beacon.sh $DIR
+	cp $GIT_DIR/scripts/s3-uploader.py $DIR
+	cp $GIT_DIR/scripts/upload.sh $DIR
+	cp $GIT_DIR/urls.conf $DIR
+	crontab $GIT_DIR/crontab
+
+	echo "cp $GIT_DIR/install/update.sh $DIR; rm $DIR/init.sh" > $DIR/init.sh
+	reboot
+fi

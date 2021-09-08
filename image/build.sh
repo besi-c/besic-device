@@ -88,5 +88,14 @@ fi
 echo "bash /var/besic/relay-git/install/setup.sh" | sudo tee $dir/init.sh > /dev/null
 sudo git clone $hdir $dir/relay-git
 
+if [ -z ${S3_ACCESS_KEY+x} ]; then
+	read -p "S3 Access Key: " S3_ACCESS_KEY
+fi
+if [ -z ${S3_SECRET_KEY+x} ]; then
+	read -p "S3 Secret Key: " S3_SECRET_KEY
+fi
+echo "S3_ACCESS_KEY=\"$S3_ACCESS_KEY\"
+S3_SECRET_KEY=\"$S3_ACCESS_KEY\"" | sudo tee $dir/secrets.conf > /dev/null
+
 mount_temp 0
 mv $TEMP_IMG $FINAL_IMG

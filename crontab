@@ -4,7 +4,9 @@
 @reboot bash /var/besic/beacon.sh
 @reboot bash /var/besic/heartbeat.sh
 * * * * * bash /var/besic/heartbeat.sh
-0 2 * * * bash /var/besic/update.sh
+*/30 * * * * bash /var/besic/upload.sh
+0 * * * * bash /var/besic/update.sh
+0 2 * * * bash /var/besic/update.sh daily
 
 # Trim log files
 0 * * * * for f in /var/log/besic/*.log; do sed -i '2000,$d' $f; done
