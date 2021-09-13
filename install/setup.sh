@@ -37,6 +37,14 @@ cp $GIT_DIR/scripts/upload.sh $DIR
 cp $GIT_DIR/urls.conf $DIR
 crontab $GIT_DIR/crontab
 
+# Install python modules for uploader
+apt update
+apt -y upgrade
+apt -y install python3-pip git
+pip3 install boto3
+
+echo "[$(date --rfc-3339=seconds)]: Packages installed" >> $LOG
+
 source $DIR/urls.conf
 if [ -z ${REMOTE_URL+x} ]; then
 	echo "[$(date --rfc-3339=seconds)]: REMOTE_URL not found" >> $LOG
@@ -48,16 +56,14 @@ while true; do
 	res=$(curl "$REMOTE_URL/api/device/new" -d "mac=$mac&type=relay&password=$password")
 	if [[ $res == "Success" ]]; then
 		curl "$REMOTE_URL/api/device/$mac/deployment" -d "password=$password" > $DIR/deploy.conf
+		echo "[$(date --rfc-3339=seconds)]: Remote init complete" >> $LOG
 		break
 	fi
 	echo "[$(date --rfc-3339=seconds)]: Remote init failed ($res)" >> $LOG
 	sleep 5
 done
 
-# Install python modules for uploader
-apt update
-apt -y install python3-pip
-pip3 install boto3
+echo "bash /var/besic/sensors/install.sh" > $DIR/init.sh
 
 echo "[$(date --rfc-3339=seconds)]: Setup complete" >> $LOG
 

@@ -87,6 +87,7 @@ if [ ! -z ${PI_PSWD+x} ]; then
 fi
 echo "bash /var/besic/relay-git/install/setup.sh" | sudo tee $dir/init.sh > /dev/null
 sudo git clone $hdir $dir/relay-git
+sudo git clone https://github.com/pennbauman/besic-sensors.py.git $dir/sensors
 
 if [ -z ${S3_ACCESS_KEY+x} ]; then
 	read -p "S3 Access Key: " S3_ACCESS_KEY

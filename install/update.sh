@@ -23,7 +23,11 @@ if [ -z ${REMOTE_URL+x} ]; then
 fi
 
 # Update deployment info
-curl "$REMOTE_URL/api/device/$MAC/deployment" -d "password=$PASSWORD" > $DIR/deploy.conf
+curl "$REMOTE_URL/api/device/$MAC/deployment" -d "password=$PASSWORD" > /tmp/deploy.conf
+if [[ $(cat /tmp/deploy.conf) =~ DEPLOYMENT ]]; then
+	mv /tmp/deploy.conf $DIR/deploy.conf
+fi
+systemctl restart besic.sensors.service
 
 
 # Daily more complex updates
