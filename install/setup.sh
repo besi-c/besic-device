@@ -18,10 +18,10 @@ fi
 
 # Setup unique device id
 read mac < /sys/class/net/wlan0/address
-mac="$(echo ${mac:9} | sed 's/://g')"
+mac="$(echo $mac | sed 's/://g')"
 password=$(openssl rand -hex 32)
 
-hostname="besic-relay-$mac"
+hostname="besic-relay-${mac:6}"
 echo "$hostname" > /etc/hostname
 echo "127.0.0.1 $hostname" > /etc/hosts
 
@@ -37,14 +37,6 @@ cp $GIT_DIR/scripts/upload.sh $DIR
 cp $GIT_DIR/urls.conf $DIR
 crontab $GIT_DIR/crontab
 
-# Install python modules for uploader
-apt update
-apt -y upgrade
-apt -y install python3-pip git
-pip3 install boto3
-
-echo "[$(date --rfc-3339=seconds)]: Packages installed" >> $LOG
-
 source $DIR/urls.conf
 if [ -z ${REMOTE_URL+x} ]; then
 	echo "[$(date --rfc-3339=seconds)]: REMOTE_URL not found" >> $LOG
@@ -53,9 +45,9 @@ fi
 
 # Initialize relay on remote server
 while true; do
-	res=$(curl "$REMOTE_URL/api/device/new" -d "mac=$mac&type=relay&password=$password")
+	res=$(curl "$REMOTE_URL/device/new?mac=$mac&password=$password&type=RELAY")
 	if [[ $res == "Success" ]]; then
-		curl "$REMOTE_URL/api/device/$mac/deployment" -d "password=$password" > $DIR/deploy.conf
+		curl "$REMOTE_URL/device/deployment?mac=$mac&password=$password" > $DIR/deploy.conf
 		echo "[$(date --rfc-3339=seconds)]: Remote init complete" >> $LOG
 		break
 	fi
@@ -63,7 +55,12 @@ while true; do
 	sleep 5
 done
 
-echo "bash /var/besic/sensors/install.sh" > $DIR/init.sh
+# Install python modules for uploader
+apt update
+apt -y install python3-pip git
+pip3 install boto3
+
+echo "bash /var/besic/sensors/install.sh; rm $DIR/init.sh" > $DIR/init.sh
 
 echo "[$(date --rfc-3339=seconds)]: Setup complete" >> $LOG
 

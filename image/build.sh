@@ -9,6 +9,8 @@ BASE_IMG="2021-05-07-raspios-buster-armhf-lite.img"
 TEMP_IMG="raspios_temp.img"
 FINAL_IMG="../raspios_besic_relay.img"
 
+SENSOR_URL="https://github.com/pennbauman/besic-sensors.py.git"
+
 if [ -e ./secrets.conf ]; then
 	source ./secrets.conf
 fi
@@ -87,7 +89,8 @@ if [ ! -z ${PI_PSWD+x} ]; then
 fi
 echo "bash /var/besic/relay-git/install/setup.sh" | sudo tee $dir/init.sh > /dev/null
 sudo git clone $hdir $dir/relay-git
-sudo git clone https://github.com/pennbauman/besic-sensors.py.git $dir/sensors
+sudo git clone $SENSOR_URL $dir/sensors
+
 
 if [ -z ${S3_ACCESS_KEY+x} ]; then
 	read -p "S3 Access Key: " S3_ACCESS_KEY
