@@ -2,6 +2,7 @@
 #   https://github.com/pennbauman/besic-relay
 #   Penn Bauman <pcb8gb@virginia.edu>
 @reboot bash /var/besic/beacon.sh
+*/5 * * * * bash /var/besic/beacon.sh
 @reboot bash /var/besic/heartbeat.sh
 * * * * * bash /var/besic/heartbeat.sh
 */30 * * * * bash /var/besic/upload.sh
