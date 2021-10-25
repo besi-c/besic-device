@@ -43,11 +43,27 @@ if [ -z ${REMOTE_URL+x} ]; then
 	exit 1
 fi
 
+# Set time from remote server
+timedatectl set-timezone America/New_York
+while true; do
+	time=$(curl -s "$REMOTE_URL/time/iso" | sed 's/\....Z//' | sed 's/"//g' | sed 's/T/ /')
+	timedatectl set-time $time
+	echo "? = $? : time = $time" >> $LOG
+	#date +%Y-%m-%dT%TZ -s $time
+	if (( $? == 0 )); then
+		hwclock -w
+		echo "[$(date --rfc-3339=seconds)]: Time set complete" >> $LOG
+		break
+	fi
+	echo "[$(date --rfc-3339=seconds)]: Time set failed" >> $LOG
+	sleep 5
+done
+
 # Initialize relay on remote server
 while true; do
-	res=$(curl "$REMOTE_URL/device/new?mac=$mac&password=$password&type=RELAY")
+	res=$(curl -s "$REMOTE_URL/device/new?mac=$mac&password=$password&type=RELAY")
 	if [[ $res == "Success" ]]; then
-		curl "$REMOTE_URL/device/deployment?mac=$mac&password=$password" > $DIR/deploy.conf
+		curl -s "$REMOTE_URL/device/deployment?mac=$mac&password=$password" > $DIR/deploy.conf
 		echo "[$(date --rfc-3339=seconds)]: Remote init complete" >> $LOG
 		break
 	fi
