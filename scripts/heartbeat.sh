@@ -26,11 +26,11 @@ fi
 fail=0
 i=0
 while (( $i < 10 )); do
-	res=$(curl -s "$REMOTE_URL/device/heartbeat?mac=$MAC&password=$PASSWORD")
+	res=$(curl -s "$REMOTE_URL/device/heartbeat" -d "mac=$MAC" -d "password=$PASSWORD")
 	if [[ $res != "Success" ]]; then
 		fail=$(($fail + 1))
 		if [[ $res == "Unknown device" ]]; then
-			curl -s "$REMOTE_URL/device/new?mac=$MAC&password=$PASSWORD&type=RELAY"
+			curl -s "$REMOTE_URL/device/new" -d "mac=$MAC" -d "password=$PASSWORD" -d "type=RELAY"
 		fi
 	fi
 	sleep 5

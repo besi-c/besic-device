@@ -61,9 +61,9 @@ done
 
 # Initialize relay on remote server
 while true; do
-	res=$(curl -s "$REMOTE_URL/device/new?mac=$mac&password=$password&type=RELAY")
+	res=$(curl -s "$REMOTE_URL/device/new" -d "mac=$mac" -d "password=$password" -d "type=RELAY")
 	if [[ $res == "Success" ]]; then
-		curl -s "$REMOTE_URL/device/deployment?mac=$mac&password=$password" > $DIR/deploy.conf
+		curl -s "$REMOTE_URL/device/deployment" -d "mac=$mac" -d "password=$password" > $DIR/deploy.conf
 		echo "[$(date --rfc-3339=seconds)]: Remote init complete" >> $LOG
 		break
 	fi

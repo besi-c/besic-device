@@ -23,7 +23,7 @@ if [ -z ${REMOTE_URL+x} ]; then
 fi
 
 # Update deployment info
-curl -s "$REMOTE_URL/device/deployment?mac=$MAC&password=$PASSWORD" > /tmp/deploy.conf
+curl -s "$REMOTE_URL/device/deployment" -d "mac=$MAC" -d "password=$PASSWORD" > /tmp/deploy.conf
 if [[ $(cat /tmp/deploy.conf) =~ DEPLOYMENT ]]; then
 	mv /tmp/deploy.conf $DIR/deploy.conf
 fi
