@@ -13,7 +13,7 @@ if [ -z ${MAC+x} ]; then
 	echo "[$(date --rfc-3339=seconds)]: MAC not found" >> $LOG
 	exit 1
 fi
-id=${MAC:4:6}
+id=${MAC: -2}
 
 # Configure the bluetooth module
 hciconfig hci0 down

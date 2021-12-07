@@ -17,8 +17,7 @@ if [ -f $DIR/passwd ]; then
 fi
 
 # Setup unique device id
-read mac < /sys/class/net/wlan0/address
-mac="$(echo $mac | sed 's/://g')"
+mac="$(sed 's/://g' /sys/class/net/wlan0/address)"
 password=$(openssl rand -hex 32)
 
 hostname="besic-relay-${mac:6}"
@@ -37,27 +36,14 @@ cp $GIT_DIR/scripts/upload.sh $DIR
 cp $GIT_DIR/urls.conf $DIR
 crontab $GIT_DIR/crontab
 
+# Set time zone
+timedatectl set-timezone America/New_York
+
 source $DIR/urls.conf
 if [ -z ${REMOTE_URL+x} ]; then
 	echo "[$(date --rfc-3339=seconds)]: REMOTE_URL not found" >> $LOG
 	exit 1
 fi
-
-# Set time from remote server
-timedatectl set-timezone America/New_York
-while true; do
-	time=$(curl -s "$REMOTE_URL/time/iso" | sed 's/\....Z//' | sed 's/"//g' | sed 's/T/ /')
-	timedatectl set-time $time
-	echo "? = $? : time = $time" >> $LOG
-	#date +%Y-%m-%dT%TZ -s $time
-	if (( $? == 0 )); then
-		hwclock -w
-		echo "[$(date --rfc-3339=seconds)]: Time set complete" >> $LOG
-		break
-	fi
-	echo "[$(date --rfc-3339=seconds)]: Time set failed" >> $LOG
-	sleep 5
-done
 
 # Initialize relay on remote server
 while true; do
@@ -73,8 +59,7 @@ done
 
 # Install python modules for uploader
 apt update
-apt -y install python3-pip git
-pip3 install boto3
+apt -y install python3-pip python3-boto3 git
 
 echo "bash /var/besic/sensors/install.sh; rm $DIR/init.sh" > $DIR/init.sh
 

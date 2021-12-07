@@ -24,11 +24,12 @@ source $DIR/secrets.conf
 
 # Upload zip files
 for f in $DATA_DIR/*.zip; do
-	python3 $DIR/s3-uploader.py $f
+	err=$(python3 $DIR/s3-uploader.py $f)
 	if (( $? != 0 )); then
+		echo "[$(date --rfc-3339=seconds)]: $(basename $f) upload failed" >> $LOG
+		echo "$err" >> $LOG
+	else
 		rm $f
 		echo "[$(date --rfc-3339=seconds)]: $(basename $f) uploaded" >> $LOG
-	else
-		echo "[$(date --rfc-3339=seconds)]: $(basename $f) upload failed" >> $LOG
 	fi
 done
