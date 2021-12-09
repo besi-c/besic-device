@@ -1,13 +1,7 @@
 # BESI-C Relay Crontab
 #   https://github.com/pennbauman/besic-relay
 #   Penn Bauman <pcb8gb@virginia.edu>
-@reboot bash /var/besic/beacon.sh
-*/5 * * * * bash /var/besic/beacon.sh
-@reboot bash /var/besic/heartbeat.sh
-* * * * * bash /var/besic/heartbeat.sh
-*/30 * * * * bash /var/besic/upload.sh
+@reboot besic-heartbeat
+* * * * * besic-heartbeat
 0 * * * * bash /var/besic/update.sh
 0 2 * * * bash /var/besic/update.sh daily
-
-# Trim log files
-0 * * * * for f in /var/log/besic/*.log; do sed -i '2000,$d' $f; done

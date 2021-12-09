@@ -83,15 +83,19 @@ mount_temp 2
 # Setup Init
 dir="$wdir/mnt2/var/besic"
 sudo mkdir $dir
+# Add on start script
 sudo cp $hdir/install/init.sh $wdir/mnt2/etc/rc.local
 if [ ! -z ${PI_PSWD+x} ]; then
 	echo "$PI_PSWD" | sudo tee $dir/passwd > /dev/null
 fi
 echo "bash /var/besic/relay-git/install/setup.sh" | sudo tee $dir/init.sh > /dev/null
+# Add APT repository
+echo "deb [trusted=yes] http://apt.besic.org/ ./" | sudo tee -a $wdir/mnt2/etc/apt/sources.list > /dev/null
+# Clone codebases
 sudo git clone $hdir $dir/relay-git
 sudo git clone $SENSOR_URL $dir/sensors
 
-
+# Setup S3 access
 if [ -z ${S3_ACCESS_KEY+x} ]; then
 	read -p "S3 Access Key: " S3_ACCESS_KEY
 fi
@@ -99,7 +103,7 @@ if [ -z ${S3_SECRET_KEY+x} ]; then
 	read -p "S3 Secret Key: " S3_SECRET_KEY
 fi
 echo "S3_ACCESS_KEY=\"$S3_ACCESS_KEY\"
-S3_SECRET_KEY=\"$S3_ACCESS_KEY\"" | sudo tee $dir/secrets.conf > /dev/null
+S3_SECRET_KEY=\"$S3_ACCESS_KEY\"" | sudo tee $dir/s3key.conf > /dev/null
 
 mount_temp 0
 mv $TEMP_IMG $FINAL_IMG

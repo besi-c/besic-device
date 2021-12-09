@@ -29,27 +29,23 @@ echo "PASSWORD=\"$password\"" >> $DIR/config.conf
 
 # Install scripts
 cp $GIT_DIR/install/update.sh $DIR
-cp $GIT_DIR/scripts/heartbeat.sh $DIR
-cp $GIT_DIR/scripts/beacon.sh $DIR
-cp $GIT_DIR/scripts/s3-uploader.py $DIR
-cp $GIT_DIR/scripts/upload.sh $DIR
-cp $GIT_DIR/urls.conf $DIR
 crontab $GIT_DIR/crontab
 
 # Set time zone
 timedatectl set-timezone America/New_York
 
-source $DIR/urls.conf
-if [ -z ${REMOTE_URL+x} ]; then
-	echo "[$(date --rfc-3339=seconds)]: REMOTE_URL not found" >> $LOG
-	exit 1
-fi
+# Install python modules for uploader
+apt-get update &>> $LOG
+apt-get -y upgrade &>> $LOG
+apt-get -y install git besic-relay &>> $LOG
+
+source besic-url-conf
 
 # Initialize relay on remote server
 while true; do
-	res=$(curl -s "$REMOTE_URL/device/new" -d "mac=$mac" -d "password=$password" -d "type=RELAY")
+	res=$(curl -s "$API_URL/device/new" -d "mac=$mac" -d "password=$password" -d "type=RELAY")
 	if [[ $res == "Success" ]]; then
-		curl -s "$REMOTE_URL/device/deployment" -d "mac=$mac" -d "password=$password" > $DIR/deploy.conf
+		curl -s "$API_URL/device/deployment" -d "mac=$mac" -d "password=$password" > $DIR/deploy.conf
 		echo "[$(date --rfc-3339=seconds)]: Remote init complete" >> $LOG
 		break
 	fi
@@ -57,9 +53,6 @@ while true; do
 	sleep 5
 done
 
-# Install python modules for uploader
-apt update
-apt -y install python3-pip python3-boto3 git
 
 echo "bash /var/besic/sensors/install.sh; rm $DIR/init.sh" > $DIR/init.sh
 

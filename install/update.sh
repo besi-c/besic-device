@@ -35,11 +35,6 @@ if [[ $1 == "daily" ]]; then
 	cd $GIT_DIR
 	git pull --ff-only
 
-	cp $GIT_DIR/scripts/heartbeat.sh $DIR
-	cp $GIT_DIR/scripts/beacon.sh $DIR
-	cp $GIT_DIR/scripts/s3-uploader.py $DIR
-	cp $GIT_DIR/scripts/upload.sh $DIR
-	cp $GIT_DIR/urls.conf $DIR
 	crontab $GIT_DIR/crontab
 
 	echo "cp $GIT_DIR/install/update.sh $DIR; rm $DIR/init.sh" > $DIR/init.sh
