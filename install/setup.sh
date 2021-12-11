@@ -16,43 +16,31 @@ if [ -f $DIR/passwd ]; then
 	echo "[$(date --rfc-3339=seconds)]: Password updated" >> $LOG
 fi
 
-# Setup unique device id
+# Setup device name with mac
 mac="$(sed 's/://g' /sys/class/net/wlan0/address)"
-password=$(openssl rand -hex 32)
-
 hostname="besic-relay-${mac:6}"
 echo "$hostname" > /etc/hostname
 echo "127.0.0.1 $hostname" > /etc/hosts
 
-echo "MAC=\"$mac\"" > $DIR/config.conf
-echo "PASSWORD=\"$password\"" >> $DIR/config.conf
-
-# Install scripts
-cp $GIT_DIR/install/update.sh $DIR
+# Install crontab
 crontab $GIT_DIR/crontab
 
-# Set time zone
+# Set time zone and locale
 timedatectl set-timezone America/New_York
+sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
+sed -i 's/en_US.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/g' /etc/locale.gen
+locale-gen en_US.UTF-8
+update-locale en_US.UTF-8
 
 # Install python modules for uploader
-apt-get update &>> $LOG
-apt-get -y upgrade &>> $LOG
-apt-get -y install git besic-relay &>> $LOG
+apt-get update 2>> $LOG
+apt-get -y upgrade 2>> $LOG
+apt-get -y install besic-relay 2>> $LOG
 
-source besic-url-conf
+besic-announce
+besic-update
 
-# Initialize relay on remote server
-while true; do
-	res=$(curl -s "$API_URL/device/new" -d "mac=$mac" -d "password=$password" -d "type=RELAY")
-	if [[ $res == "Success" ]]; then
-		curl -s "$API_URL/device/deployment" -d "mac=$mac" -d "password=$password" > $DIR/deploy.conf
-		echo "[$(date --rfc-3339=seconds)]: Remote init complete" >> $LOG
-		break
-	fi
-	echo "[$(date --rfc-3339=seconds)]: Remote init failed ($res)" >> $LOG
-	sleep 5
-done
-
+cp $DIR/device.conf $DIR/config.conf
 
 echo "bash /var/besic/sensors/install.sh; rm $DIR/init.sh" > $DIR/init.sh
 
