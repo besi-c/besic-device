@@ -16,11 +16,14 @@ if [ -f $DIR/passwd ]; then
 	echo "[$(date --rfc-3339=seconds)]: Password updated" >> $LOG
 fi
 
-# Setup device name with mac
-mac="$(sed 's/://g' /sys/class/net/wlan0/address)"
-hostname="besic-relay-${mac:6}"
-echo "$hostname" > /etc/hostname
-echo "127.0.0.1 $hostname" > /etc/hosts
+if [[ $(cat /etc/hostname) == "raspberrypi" ]]; then
+	# Setup device name with mac
+	mac="$(sed 's/://g' /sys/class/net/wlan0/address)"
+	hostname="besic-relay-${mac:6}"
+	echo "$hostname" > /etc/hostname
+	echo "127.0.0.1 $hostname" > /etc/hosts
+	echo "[$(date --rfc-3339=seconds)]: Updated hostname" >> $LOG
+fi
 
 # Install crontab
 crontab $GIT_DIR/crontab
@@ -28,21 +31,24 @@ crontab $GIT_DIR/crontab
 # Set time zone and locale
 timedatectl set-timezone America/New_York
 sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
-sed -i 's/en_US.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/g' /etc/locale.gen
+#sed -i 's/en_US.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/g' /etc/locale.gen
 locale-gen en_US.UTF-8
 update-locale en_US.UTF-8
 
 # Install python modules for uploader
-apt-get update 2>> $LOG
-apt-get -y upgrade 2>> $LOG
-apt-get -y install besic-relay 2>> $LOG
+apt-get update &>> $LOG
+apt-get -y upgrade &>> $LOG
+apt-get -y --no-install-recommends install besic-relay &>> $LOG
+
+echo "[$(date --rfc-3339=seconds)]: Packages installed" >> $LOG
 
 besic-announce
 besic-update
 
 cp $DIR/device.conf $DIR/config.conf
 
-echo "bash /var/besic/sensors/install.sh; rm $DIR/init.sh" > $DIR/init.sh
+#echo "bash /var/besic/sensors/install.sh; rm $DIR/init.sh" > $DIR/init.sh
+rm $DIR/init.sh
 
 echo "[$(date --rfc-3339=seconds)]: Setup complete" >> $LOG
 
