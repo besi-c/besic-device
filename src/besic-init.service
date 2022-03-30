@@ -1,0 +1,14 @@
+[Unit]
+Description=BESI-C Initialization Script
+After=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+StandardOutput=file:/var/log/besic/systemd-init.log
+StandardError=inherit
+ExecStart=/usr/share/besic/init.sh
+
+[Install]
+WantedBy=multi-user.target

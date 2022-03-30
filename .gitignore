@@ -1,3 +1,2 @@
 secrets.conf
-image/tmp
-image/*.img
+builds

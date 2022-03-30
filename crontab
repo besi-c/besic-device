@@ -1,5 +1,0 @@
-# BESI-C Relay Crontab
-#   https://github.com/pennbauman/besic-relay
-#   Penn Bauman <pcb8gb@virginia.edu>
-0 * * * * systemctl restart besic.sensors.service
-0 2 * * * reboot

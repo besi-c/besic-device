@@ -1,11 +1,23 @@
 # BESI-C Relay
+Scripts to build Raspberry Pi OS image for various BESI-C devices
 
+## Usage
+To build a relay image run:
 
-## Raspberry Pi Image
-Download Raspberry Pi OS Lite and build custom image:
+	./image.sh relay
 
-	./image/build.sh
+To build a basestation image run:
 
-Write image to SD card:
+	./image.sh basestation
 
-	./image/write.sh
+or `./image.sh bs`
+
+### Options
+Options must be placed after the device type, ie:
+
+	./image.sh relay --dev --write
+
+| Options | Short | Descriptions |
+|--------:|------:|:---|
+|  `--dev`|   `-d`| Creates a development image, using testing package repo |
+|`--write`|   `-w`| Write image to inserted SD card |
