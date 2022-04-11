@@ -12,6 +12,10 @@ To build a basestation image run:
 
 or `./image.sh bs`
 
+To build a package development image run:
+
+	./image.sh devbox
+
 ### Options
 Options must be placed after the device type, ie:
 

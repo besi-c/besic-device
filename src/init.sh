@@ -21,7 +21,7 @@ device-type () {
 		exit 1
 	fi
 	source $TYPE_CONF
-	if [[ $TYPE == "RELAY" ]] || [[ $TYPE == "BASESTATION" ]]; then
+	if [[ $TYPE == "RELAY" ]] || [[ $TYPE == "BASESTATION" ]] || [[ $TYPE == "DEVBOX" ]]; then
 		echo "[$(date --rfc-3339=seconds)] Loaded type '$TYPE'" >> $LOG
 	elif [[ $TYPE == "" ]]; then
 		echo "[$(date --rfc-3339=seconds)] $TYPE_CONF missing TYPE" >> $LOG

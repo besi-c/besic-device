@@ -1,6 +1,6 @@
 #!/bin/bash
 # Build BESI-C Rasbian Image and Write to SD Card
-#   https://github.com/pennbauman/besic-relay
+#   https://github.com/pennbauman/besic-device
 #   Penn Bauman <pcb8gb@virginia.edu>
 TEMP_FILE="$(mktemp)"
 TEMP_IMG="/var/tmp/raspios_besic_temp.img"
@@ -40,6 +40,8 @@ if (( $# > 0 )); then
 		TYPE="RELAY"
 	elif [[ "$(echo $1 | tr a-z A-Z)" == "BASESTATION" ]] || [[ "$(echo $1 | tr a-z A-Z)" == "BS" ]]; then
 		TYPE="BASESTATION"
+	elif [[ "$(echo $1 | tr a-z A-Z)" == "DEVBOX" ]]; then
+		TYPE="DEVBOX"
 	else
 		if [[ "$1" =~ ^- ]]; then
 			echo "Missing type"
@@ -75,7 +77,7 @@ fi
 # Setup files for image
 version_id="edited"
 # If unchanged from commit use commit id
-if [[ $(git status --short | wc -l) == 0 ]]; then
+if [[ $(git status --short --untracked-files=no | wc -l) == 0 ]]; then
 	version_id="$(git rev-parse HEAD)"
 	version_id="${version_id:0:8}"
 fi
@@ -83,17 +85,16 @@ fi
 if [[ $DEV == "YES" ]]; then
 	version_id="${version_id}_dev"
 fi
+FINAL_IMG="$IMG_DIR/raspios_besic_$(echo $TYPE | tr A-Z a-z)_$version_id.img"
 # From https://www.raspberrypi.com/software/operating-systems
 DESKTOP_URL="https://downloads.raspberrypi.org/raspios_armhf/images/raspios_armhf-2022-01-28/2022-01-28-raspios-bullseye-armhf.zip"
 LITE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-01-28/2022-01-28-raspios-bullseye-armhf-lite.zip"
-if [[ $TYPE == "RELAY" ]]; then
+if [[ $TYPE == "RELAY" ]] || [[ $TYPE == "DEVBOX" ]]; then
 	zip_url="$LITE_URL"
 	BASE_IMG="$CACHE_DIR/$(basename ${LITE_URL:0: -4}).img"
-	FINAL_IMG="$IMG_DIR/raspios_besic_relay_$version_id.img"
 elif [[ $TYPE == "BASESTATION" ]]; then
 	zip_url="$DESKTOP_URL"
 	BASE_IMG="$CACHE_DIR/$(basename ${DESKTOP_URL:0: -4}).img"
-	FINAL_IMG="$IMG_DIR/raspios_besic_basestation_$version_id.img"
 fi
 
 # Download image if necessary
@@ -158,7 +159,7 @@ update_config=1" >> $BOOT/wpa_supplicant.conf
 if [[ $TYPE == "RELAY" ]]; then
 	WIFI_SSID="$BS_WIFI_SSID"
 	WIFI_PSWD="$BS_WIFI_PSWD"
-elif [[ $TYPE == "BASESTATION" ]]; then
+elif [[ $TYPE == "BASESTATION" ]] || [[ $TYPE == "DEVBOX" ]]; then
 	WIFI_SSID="$SRC_WIFI_SSID"
 	WIFI_PSWD="$SRC_WIFI_PSWD"
 fi
@@ -195,7 +196,8 @@ mount_temp 2
 ROOT="$TEMP_DIR/mnt2"
 
 # Install setup script
-sudo mkdir -p $ROOT/var/besic/data $ROOT/usr/share/besic $ROOT/etc/besic
+sudo mkdir -m 777 -p $ROOT/var/besic/data $ROOT/var/log/besic
+sudo mkdir -m 755 -p $ROOT/usr/share/besic $ROOT/etc/besic
 sudo cp ./src/init.sh $ROOT/usr/share/besic/init.sh
 sudo cp ./src/besic-init.service $ROOT/etc/systemd/system
 sudo ln -s -r -T $ROOT/etc/systemd/system/besic-init.service $ROOT/etc/systemd/system/multi-user.target.wants/besic-init.service
@@ -214,6 +216,7 @@ if [[ $TYPE == "RELAY" ]]; then
 	# Add snd-i2s_rpi source
 	if [ ! -d $CACHE_DIR/snd-i2s-rpi ]; then
 		git clone "https://github.com/besi-c/snd-i2s-rpi.git" $CACHE_DIR/snd-i2s-rpi
+		git -C $CACHE_DIR/snd-i2s-rpi reset --hard e99ef23a12dbdce6b63b1ca5628630dd34bba426
 	fi
 	sudo cp -r $CACHE_DIR/snd-i2s-rpi/snd-i2s_rpi/src $ROOT/usr/src/snd-i2s_rpi-0.1.0
 	# Enable kernel modules
@@ -223,7 +226,12 @@ elif [[ $TYPE == "BASESTATION" ]]; then
 	sudo cp ./src/basestation.sh $ROOT/var/besic/setup.sh
 	# Configure router
 	sudo echo "ROUTER_SSID=\"$BS_WIFI_SSID\"
-ROUTER_PSWD=\"BS_WIFI_PSWD\"" | sudo tee $ROOT/etc/besic/router.conf > /dev/null
+ROUTER_PSWD=\"$BS_WIFI_PSWD\"" | sudo tee $ROOT/etc/besic/router.conf > /dev/null
+elif [[ $TYPE == "DEVBOX" ]]; then
+	sudo cp ./src/devbox.sh $ROOT/var/besic/setup.sh
+	# Configure router
+	sudo echo "ROUTER_SSID=\"$DEV_WIFI_SSID\"
+ROUTER_PSWD=\"$DEV_WIFI_PSWD\"" | sudo tee $ROOT/etc/besic/router.conf > /dev/null
 fi
 # Configure device type
 sudo echo "# DO NOT EDIT
@@ -239,7 +247,7 @@ sudo cp $CACHE_DIR/$(basename $TEAMVIEWER_KEY_URL) $ROOT/etc/apt/trusted.gpg.d/
 echo "deb https://linux.teamviewer.com/deb stable main" | sudo tee -a $ROOT/etc/apt/sources.list.d/teamviewer.list > /dev/null
 if [[ $DEV == "YES" ]]; then
 	echo "deb [trusted=yes] http://apt.besic.org/testing ./" | sudo tee -a $ROOT/etc/apt/sources.list.d/besic.list > /dev/null
-	echo "libbesic-dev vim git" | sudo tee $ROOT/var/besic/apt-get > /dev/null
+	echo "libbesic0-dev vim git" | sudo tee $ROOT/var/besic/apt-get > /dev/null
 	if [[ $TYPE == "BASESTATION" ]]; then
 		echo "ranger" | sudo tee -a $ROOT/var/besic/apt-get > /dev/null
 	fi
@@ -251,8 +259,6 @@ fi
 if [[ $TYPE == "RELAY" ]]; then
 	echo "i2c-dev" | sudo tee $ROOT/etc/modules-load.d/i2c-dev.conf > /dev/null
 	echo "snd-i2smic-rpi" | sudo tee $ROOT/etc/modules-load.d/snd-i2smic-rpi.conf > /dev/null
-elif [[ $TYPE == "BASESTATION" ]]; then
-	sleep 0
 fi
 echo "> Main partition setup"
 
