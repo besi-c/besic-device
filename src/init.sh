@@ -33,14 +33,6 @@ device-type () {
 }
 
 
-# Change default password;
-if [ -f $DIR/passwd ]; then
-	cat $DIR/passwd | tee -a $DIR/passwd > /dev/null
-	passwd pi < $DIR/passwd &> /dev/null
-	rm $DIR/passwd
-	echo "[$(date --rfc-3339=seconds)] Password updated" >> $LOG
-fi
-
 # Set time zone and locale
 timedatectl set-timezone America/New_York
 if [[ $(grep "^en_US" /etc/locale.gen | wc -l) == 0 ]]; then

@@ -87,26 +87,29 @@ if [[ $DEV == "YES" ]]; then
 fi
 FINAL_IMG="$IMG_DIR/raspios_besic_$(echo $TYPE | tr A-Z a-z)_$version_id.img"
 # From https://www.raspberrypi.com/software/operating-systems
-DESKTOP_URL="https://downloads.raspberrypi.org/raspios_armhf/images/raspios_armhf-2022-01-28/2022-01-28-raspios-bullseye-armhf.zip"
-LITE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-01-28/2022-01-28-raspios-bullseye-armhf-lite.zip"
+DESKTOP_URL="https://downloads.raspberrypi.org/raspios_armhf/images/raspios_armhf-2022-04-07/2022-04-04-raspios-bullseye-armhf.img.xz"
+LITE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-04-07/2022-04-04-raspios-bullseye-armhf-lite.img.xz"
 if [[ $TYPE == "RELAY" ]] || [[ $TYPE == "DEVBOX" ]]; then
-	zip_url="$LITE_URL"
-	BASE_IMG="$CACHE_DIR/$(basename ${LITE_URL:0: -4}).img"
+	img_url="$LITE_URL"
+	compressed_img="$CACHE_DIR/$(basename $LITE_URL)"
 elif [[ $TYPE == "BASESTATION" ]]; then
-	zip_url="$DESKTOP_URL"
-	BASE_IMG="$CACHE_DIR/$(basename ${DESKTOP_URL:0: -4}).img"
+	img_url="$DESKTOP_URL"
+	compressed_img="$CACHE_DIR/$(basename $DESKTOP_URL)"
 fi
+BASE_IMG=${compressed_img:0: -3}
 
 # Download image if necessary
 if [ ! -f $BASE_IMG ]; then
-	wget $zip_url -O $TEMP_FILE
-	unzip $TEMP_FILE -d $CACHE_DIR
+	wget -q --show-progress $img_url -O $compressed_img
+	xz -dv $compressed_img
 	if [[ $? == 0 ]]; then
-		rm $TEMP_FILE
+		rm -f $compressed_img
 	else
+		rm -f $BASE_IMG
 		exit 1
 	fi
-	echo "> Base image downloaded"
+	echo ""
+	echo "> Base image downloaded ~${BASE_IMG#$HOME}"
 else
 	sudo sleep 0
 	#echo "> Base image located ($(basename $BASE_IMG))"
@@ -114,10 +117,6 @@ else
 fi
 touch $BASE_IMG
 
-#echo type $TYPE --write $WRITE --dev $DEV
-#echo ZIP_URL $zip_url
-#echo BASE_IMG $BASE_IMG
-#echo FINAL_IMG $FINAL_IMG
 
 cp -u $BASE_IMG $TEMP_IMG
 
@@ -151,6 +150,11 @@ BOOT="$TEMP_DIR/mnt1"
 
 # Enable SSH
 echo "" > $BOOT/ssh
+# Setup pi user with password
+if [ -z ${PI_PSWD+x} ]; then
+	read -p "Pi User Password: " PI_PSWD
+fi
+echo "pi:$(echo "$PI_PSWD" | openssl passwd -6 -stdin)" > $BOOT/userconf
 # Add WiFi Network
 echo "country=US
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
@@ -201,10 +205,6 @@ sudo mkdir -m 755 -p $ROOT/usr/share/besic $ROOT/etc/besic
 sudo cp ./src/init.sh $ROOT/usr/share/besic/init.sh
 sudo cp ./src/besic-init.service $ROOT/etc/systemd/system
 sudo ln -s -r -T $ROOT/etc/systemd/system/besic-init.service $ROOT/etc/systemd/system/multi-user.target.wants/besic-init.service
-# Change default password
-if [ ! -z ${PI_PSWD+x} ]; then
-	echo "$PI_PSWD" | sudo tee $ROOT/var/besic/passwd > /dev/null
-fi
 # Setup S3 access
 if [ ! -z ${S3_ACCESS_KEY+x} ] && [ ! -z ${S3_ACCESS_KEY+x} ]; then
 	echo "S3_ACCESS_KEY=\"$S3_ACCESS_KEY\"
