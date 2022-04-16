@@ -1,6 +1,6 @@
 #!/bin/bash
 # BESI-C Relay On-Device Setup Script
-#   https://github.com/pennbauman/besic-relay
+#   https://github.com/pennbauman/besic-device
 #   Penn Bauman <pcb8gb@virginia.edu>
 
 LOG="/var/log/besic/setup.log"
@@ -62,7 +62,7 @@ echo "[$(date --rfc-3339=seconds)] snd-i2smic-rpi configured ($GEN_ID)" >> $LOG
 
 # Install packages to setup device
 echo jackd2 jackd/tweak_rt_limits boolean false | debconf-set-selections
-PKGS="besic-beacon besic-remote besic-s3upload besic-audio-py besic-envsense"
+PKGS="besic-beacon besic-s3upload besic-audio-py besic-envsense"
 if [[ -f $DIR/apt-get ]]; then
 	PKGS="$PKGS $(cat $DIR/apt-get)"
 fi

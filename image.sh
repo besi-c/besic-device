@@ -210,6 +210,7 @@ if [ ! -z ${S3_ACCESS_KEY+x} ] && [ ! -z ${S3_ACCESS_KEY+x} ]; then
 	echo "S3_ACCESS_KEY=\"$S3_ACCESS_KEY\"
 S3_SECRET_KEY=\"$S3_SECRET_KEY\"" | sudo tee $ROOT/var/besic/s3key.conf > /dev/null
 fi
+
 # Device specified configuration
 if [[ $TYPE == "RELAY" ]]; then
 	sudo cp ./src/relay.sh $ROOT/var/besic/setup.sh
@@ -238,16 +239,9 @@ sudo echo "# DO NOT EDIT
 TYPE=\"$TYPE\"" | sudo tee $ROOT/etc/besic/type.conf > /dev/null
 
 # Add APT repositories
-TEAMVIEWER_KEY_URL="https://dl.teamviewer.com/download/linux/signature/TeamViewer2017.asc"
-if [ ! -f $CACHE_DIR/$(basename $TEAMVIEWER_KEY_URL) ]; then
-	wget $TEAMVIEWER_KEY_URL -O $CACHE_DIR/$(basename $TEAMVIEWER_KEY_URL)
-fi
-touch $CACHE_DIR/$(basename $TEAMVIEWER_KEY_URL)
-sudo cp $CACHE_DIR/$(basename $TEAMVIEWER_KEY_URL) $ROOT/etc/apt/trusted.gpg.d/
-echo "deb https://linux.teamviewer.com/deb stable main" | sudo tee -a $ROOT/etc/apt/sources.list.d/teamviewer.list > /dev/null
 if [[ $DEV == "YES" ]]; then
 	echo "deb [trusted=yes] http://apt.besic.org/testing ./" | sudo tee -a $ROOT/etc/apt/sources.list.d/besic.list > /dev/null
-	echo "libbesic0-dev vim git" | sudo tee $ROOT/var/besic/apt-get > /dev/null
+	echo "libbesic2-dev vim git" | sudo tee $ROOT/var/besic/apt-get > /dev/null
 	if [[ $TYPE == "BASESTATION" ]]; then
 		echo "ranger" | sudo tee -a $ROOT/var/besic/apt-get > /dev/null
 	fi

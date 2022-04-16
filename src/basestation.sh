@@ -1,17 +1,14 @@
 #!/bin/bash
 # BESI-C Basestation On-Device Setup Script
-#   https://github.com/pennbauman/besic-basestation
+#   https://github.com/pennbauman/besic-device
 #   Penn Bauman <pcb8gb@virginia.edu>
-
-
-
 
 LOG="/var/log/besic/setup.log"
 DIR="/var/besic"
 TEAMVIEWER_SH="/home/pi/teamviewer.sh"
 
 
-if [[ $TYPE != "RELAY" ]]; then
+if [[ $TYPE != "BASESTATION" ]]; then
 	echo "[$(date --rfc-3339=seconds)] Unexpected type '$TYPE'" >> $LOG
 fi
 
@@ -40,7 +37,7 @@ apt-get autoremove
 echo "[$(date --rfc-3339=seconds)] Updated Raspberry Pi OS" >> $LOG
 
 # Install packages to setup device
-PKGS="teamviewer"
+PKGS="libbesic-tools"
 	#besic-router
 if [[ -f $DIR/apt-get ]]; then
 	PKGS="$PKGS $(cat $DIR/apt-get)"
@@ -57,15 +54,19 @@ echo "[$(date --rfc-3339=seconds)] BESI-C packages installed" >> $LOG
 
 echo "#!/bin/bash
 # Setup teamviewer
+
+DEB_URL=\"https://download.teamviewer.com/download/linux/teamviewer-host_armhf.deb\"
+
+wget \$DEB_URL -O /tmp/\$(basename \$DEB_URL)
+sudo apt-get -y install /tmp/\$(basename \$DEB_URL)
+
 sudo teamviewer setup" > $TEAMVIEWER_SH
 chown pi $TEAMVIEWER_SH
 chmod +x $TEAMVIEWER_SH
 
 
-# System init
-#besic-announce &>> $LOG
-#besic-update &>> $LOG
+sudo -u pi ssh-keygen -q -f /home/pi/.ssh/id_rsa -N ""
 
-echo "[$(date --rfc-3339=seconds)] Packaged setup complete" >> $LOG
+echo "* * * * * besic-heartbeat" | crontab -
 
-exit 0
+echo "[$(date --rfc-3339=seconds)] Device setup complete" >> $LOG
