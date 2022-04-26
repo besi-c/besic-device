@@ -112,6 +112,9 @@ if [ ! -f $BASE_IMG ]; then
 	echo "> Base image downloaded ~${BASE_IMG#$HOME}"
 else
 	sudo sleep 0
+	if [[ $? != 0 ]]; then
+		exit
+	fi
 	#echo "> Base image located ($(basename $BASE_IMG))"
 	echo "> Base image located ~${BASE_IMG#$HOME}"
 fi
@@ -163,16 +166,19 @@ update_config=1" >> $BOOT/wpa_supplicant.conf
 if [[ $TYPE == "RELAY" ]]; then
 	WIFI_SSID="$BS_WIFI_SSID"
 	WIFI_PSWD="$BS_WIFI_PSWD"
-elif [[ $TYPE == "BASESTATION" ]] || [[ $TYPE == "DEVBOX" ]]; then
-	WIFI_SSID="$SRC_WIFI_SSID"
-	WIFI_PSWD="$SRC_WIFI_PSWD"
+elif [[ $TYPE == "BASESTATION" ]]; then
+	WIFI_SSID="$HOTSPOT_SSID"
+	WIFI_PSWD="$HOTSPOT_PSWD"
+elif [[ $TYPE == "DEVBOX" ]]; then
+	WIFI_SSID="$DEV_WIFI_SSID"
+	WIFI_PSWD="$DEV_WIFI_PSWD"
 fi
 # Get WiFi if not set
 if [[ $WIFI_SSID == "" ]]; then
-	read -p "SSID: " WIFI_SSID
+	read -p "WiFi SSID: " WIFI_SSID
 fi
 if [[ $WIFI_PSWD == "" ]]; then
-	read -p "Password: " WIFI_PSWD
+	read -p "WiFi Password: " WIFI_PSWD
 fi
 # Write WiFi passphrase
 wpa_passphrase "$WIFI_SSID" "$WIFI_PSWD" >> $BOOT/wpa_supplicant.conf
@@ -208,7 +214,7 @@ sudo ln -s -r -T $ROOT/etc/systemd/system/besic-init.service $ROOT/etc/systemd/s
 # Setup S3 access
 if [ ! -z ${S3_ACCESS_KEY+x} ] && [ ! -z ${S3_ACCESS_KEY+x} ]; then
 	echo "S3_ACCESS_KEY=\"$S3_ACCESS_KEY\"
-S3_SECRET_KEY=\"$S3_SECRET_KEY\"" | sudo tee $ROOT/var/besic/s3key.conf > /dev/null
+S3_SECRET_KEY=\"$S3_SECRET_KEY\"" | sudo tee $ROOT/etc/besic/secrets.conf > /dev/null
 fi
 
 # Device specified configuration
@@ -227,12 +233,12 @@ elif [[ $TYPE == "BASESTATION" ]]; then
 	sudo cp ./src/basestation.sh $ROOT/var/besic/setup.sh
 	# Configure router
 	sudo echo "ROUTER_SSID=\"$BS_WIFI_SSID\"
-ROUTER_PSWD=\"$BS_WIFI_PSWD\"" | sudo tee $ROOT/etc/besic/router.conf > /dev/null
+	ROUTER_PSWD=\"$BS_WIFI_PSWD\"" | sudo tee $ROOT/etc/besic/router.conf > /dev/null
 elif [[ $TYPE == "DEVBOX" ]]; then
 	sudo cp ./src/devbox.sh $ROOT/var/besic/setup.sh
 	# Configure router
-	sudo echo "ROUTER_SSID=\"$DEV_WIFI_SSID\"
-ROUTER_PSWD=\"$DEV_WIFI_PSWD\"" | sudo tee $ROOT/etc/besic/router.conf > /dev/null
+	sudo echo "ROUTER_SSID=\"$HOTSPOT_SSID\"
+ROUTER_PSWD=\"$HOTSPOT_PSWD\"" | sudo tee $ROOT/etc/besic/router.conf > /dev/null
 fi
 # Configure device type
 sudo echo "# DO NOT EDIT

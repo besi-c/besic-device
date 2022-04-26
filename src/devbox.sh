@@ -31,11 +31,11 @@ if [[ $code != 0 ]]; then
 	echo "[$(date --rfc-3339=seconds)] apt-get upgrade failed ($code)" >> $LOG
 	exit 1
 fi
-apt-get autoremove
+apt-get autoremove &>> $LOG
 echo "[$(date --rfc-3339=seconds)] Updated Raspberry Pi OS" >> $LOG
 
 # Install packages to setup device
-PKGS="libbesic-tools libbesic0-dev git vim ranger devscripts debhelper"
+PKGS="libbesic-tools libbesic2-dev besic-router git vim ranger devscripts debhelper"
 if [[ -f $DIR/apt-get ]]; then
 	PKGS="$PKGS $(cat $DIR/apt-get)"
 fi
