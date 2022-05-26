@@ -165,8 +165,8 @@ if [ ! -f $FINAL_IMG ]; then
 	echo "pi:$(echo "$PI_PSWD" | openssl passwd -6 -stdin)" > $BOOT/userconf
 	# Add WiFi Network
 	echo "country=US
-	ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-	update_config=1" >> $BOOT/wpa_supplicant.conf
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1" >> $BOOT/wpa_supplicant.conf
 	# Determine WiFi network
 	if [[ $TYPE == "RELAY" ]]; then
 		WIFI_SSID="$BS_WIFI_SSID"
@@ -218,8 +218,8 @@ if [ ! -f $FINAL_IMG ]; then
 	sudo ln -s -r -T $ROOT/etc/systemd/system/besic-init.service $ROOT/etc/systemd/system/multi-user.target.wants/besic-init.service
 	# Setup S3 access
 	if [ ! -z ${S3_ACCESS_KEY+x} ] && [ ! -z ${S3_ACCESS_KEY+x} ]; then
-		echo "S3_ACCESS_KEY=\"$S3_ACCESS_KEY\"
-	S3_SECRET_KEY=\"$S3_SECRET_KEY\"" | sudo tee $ROOT/etc/besic/secrets.conf > /dev/null
+		echo -e "S3_ACCESS_KEY=\"$S3_ACCESS_KEY\"
+S3_SECRET_KEY=\"$S3_SECRET_KEY\"" | sudo tee $ROOT/etc/besic/secrets.conf > /dev/null
 	fi
 
 	# Device specified configuration
@@ -238,16 +238,16 @@ if [ ! -f $FINAL_IMG ]; then
 		sudo cp ./src/basestation.sh $ROOT/var/besic/setup.sh
 		# Configure router
 		sudo echo "ROUTER_SSID=\"$BS_WIFI_SSID\"
-		ROUTER_PSWD=\"$BS_WIFI_PSWD\"" | sudo tee $ROOT/etc/besic/router.conf > /dev/null
+ROUTER_PSWD=\"$BS_WIFI_PSWD\"" | sudo tee $ROOT/etc/besic/router.conf > /dev/null
 	elif [[ $TYPE == "DEVBOX" ]]; then
 		sudo cp ./src/devbox.sh $ROOT/var/besic/setup.sh
 		# Configure router
 		sudo echo "ROUTER_SSID=\"$HOTSPOT_SSID\"
-	ROUTER_PSWD=\"$HOTSPOT_PSWD\"" | sudo tee $ROOT/etc/besic/router.conf > /dev/null
+ROUTER_PSWD=\"$HOTSPOT_PSWD\"" | sudo tee $ROOT/etc/besic/router.conf > /dev/null
 	fi
 	# Configure device type
-	sudo echo "# DO NOT EDIT
-	TYPE=\"$TYPE\"" | sudo tee $ROOT/etc/besic/type.conf > /dev/null
+	sudo echo -e "# DO NOT EDIT
+TYPE=\"$TYPE\"" | sudo tee $ROOT/etc/besic/type.conf > /dev/null
 
 	# Add APT repositories
 	if [[ $DEV == "YES" ]]; then

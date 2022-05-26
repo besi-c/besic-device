@@ -50,9 +50,9 @@ fi
 echo "[$(date --rfc-3339=seconds)] BESI-C packages installed" >> $LOG
 
 sudo -u pi ssh-keygen -q -f /home/pi/.ssh/id_rsa -N ""
-sudo -u pi git clone https://github.com/pennbauman/besic-scripts /home/pi/scripts
-sudo -u pi git clone https://github.com/pennbauman/besic-sensors /home/pi/sensors
-sudo -u pi git clone https://github.com/pennbauman/libbesic /home/pi/libbesic
+sudo -u pi git clone https://github.com/besi-c/besic-scripts /home/pi/scripts
+sudo -u pi git clone https://github.com/besi-c/besic-sensors /home/pi/sensors
+sudo -u pi git clone https://github.com/besi-c/libbesic /home/pi/libbesic
 
 echo "[$(date --rfc-3339=seconds)] System setup complete" >> $LOG
 

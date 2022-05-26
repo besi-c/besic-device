@@ -37,7 +37,7 @@ apt-get autoremove &>> $LOG
 echo "[$(date --rfc-3339=seconds)] Updated Raspberry Pi OS" >> $LOG
 
 # Install packages to setup device
-PKGS="libbesic-tools besic-router"
+PKGS="besic-autoupdates besic-router adb"
 	#besic-router
 if [[ -f $DIR/apt-get ]]; then
 	PKGS="$PKGS $(cat $DIR/apt-get)"

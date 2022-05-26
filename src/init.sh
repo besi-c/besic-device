@@ -74,8 +74,7 @@ if [[ -f $SETUP_SH ]]; then
 		echo "[$(date --rfc-3339=seconds)] $SETUP_SH successful" >> $LOG
 		rm $SETUP_SH
 	else
-		echo "[$(date --rfc-3339=seconds)] $SETUP_SH = $code" >> $LOG
-		mv $SETUP_SH ${SETUP_SH}_failed
+		echo "[$(date --rfc-3339=seconds)] $SETUP_SH error ($code)" >> $LOG
 		exit
 	fi
 	reboot
