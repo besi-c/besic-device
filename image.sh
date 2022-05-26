@@ -102,10 +102,6 @@ BASE_IMG=${compressed_img:0: -3}
 
 
 
-cp -u $BASE_IMG $TEMP_IMG
-
-
-
 # Mount partition of image
 mount_temp() {
 	sudo umount $TEMP_IMG &> /dev/null
@@ -128,9 +124,11 @@ mount_temp() {
 }
 
 
+
 if [ ! -f $FINAL_IMG ]; then
 	# Download image if necessary
 	if [ ! -f $BASE_IMG ]; then
+		mkdir -p $(dirname $compressed_img)
 		wget -q --show-progress $img_url -O $compressed_img
 		xz -dv $compressed_img
 		if [[ $? == 0 ]]; then
@@ -150,6 +148,8 @@ if [ ! -f $FINAL_IMG ]; then
 		echo "> Base image located ~${BASE_IMG#$HOME}"
 	fi
 	touch $BASE_IMG
+
+	cp -u $BASE_IMG $TEMP_IMG
 
 
 	# Edit boot partition
