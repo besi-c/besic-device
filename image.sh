@@ -198,9 +198,11 @@ update_config=1" >> $BOOT/wpa_supplicant.conf
 		sudo sed -i 's/#dtparam=i2s=on/dtparam=i2s=on/' $BOOT/config.txt
 		sudo sed -i 's/#dtparam=i2c_arm=on/dtparam=i2c_arm=on/' $BOOT/config.txt
 	elif [[ $TYPE == "BASESTATION" ]]; then
+		sudo sed -i 's/#framebuffer/framebuffer/g' $BOOT/config.txt
 		sudo sed -i 's/#hdmi_mode=1/hdmi_mode=85/' $BOOT/config.txt
 		sudo sed -i 's/#hdmi_group=1/hdmi_group=2/' $BOOT/config.txt
 		sudo sed -i 's/#hdmi_force_hotplug=1/hdmi_force_hotplug=1/' $BOOT/config.txt
+		sudo sed -i 's/#hdmi_drive=2/hdmi_drive=2/' $BOOT/config.txt
 	fi
 
 	echo "> Boot partition setup"
