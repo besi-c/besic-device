@@ -2,7 +2,6 @@
 # Build BESI-C Rasbian Image and Write to SD Card
 #   https://github.com/pennbauman/besic-device
 #   Penn Bauman <pcb8gb@virginia.edu>
-TEMP_FILE="$(mktemp)"
 TEMP_IMG="/var/tmp/raspios_besic_temp.img"
 TEMP_DIR="$(mktemp -d)"
 IMG_DIR="$(pwd)/builds"
@@ -144,7 +143,6 @@ if [ ! -f $FINAL_IMG ]; then
 		if [[ $? != 0 ]]; then
 			exit
 		fi
-		#echo "> Base image located ($(basename $BASE_IMG))"
 		echo "> Base image located ~${BASE_IMG#$HOME}"
 	fi
 	touch $BASE_IMG
